@@ -34,7 +34,10 @@ on boot
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
     chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
     chown bluetooth bluetooth /proc/bluetooth/sleep/proto
-
+#original content
+#Qin Mei [Begin , 20101025,duplicate between init.rc and init.qcom.rc ,delete]
+    #chown system system /sys/module/sco/parameters/disable_esco
+#end
     chmod 0660 /sys/module/bluetooth_power/parameters/power
     chmod 0660 /sys/class/rfkill/rfkill0/state
     chmod 0660 /proc/bluetooth/sleep/proto
@@ -52,11 +55,18 @@ on boot
     symlink /persist/qcom_wlan_nv.bin /etc/firmware/wlan/qcom_wlan_nv.bin
     setprop wifi.interface eth0
     
+#Lai Sansan, 20100819, add for bcm bt and wifi, add
     chmod 0777 /system/wifi/patch_plus
     chmod 0777 /system/wifi/wlarm_android
     chown wifi wifi /system/wifi/dhd.ko
     mkdir /data/system 0777 system system
     mkdir /data/system/wpa_supplicant 0777 wifi wifi
+    #Original    
+    #chmod 0777 /system/wifi/wpa_supplicant.conf
+    #Wang Ling, 20101220, modify wpa_supplicant path , modify
+    chmod 0777 /data/misc/wifi/wpa_supplicant.conf
+    #end    
+#end
 
      # Create directories for wiper services
     mkdir /data/wpstiles/ 0777 shell
@@ -64,6 +74,15 @@ on boot
 
 on property:init.svc.wpa_supplicant=stopped
     stop dhcpcd
+
+#Li Fenfen, 20101207, for bcm bt, delete
+#on property:init.svc.bluetoothd=running
+#   write /sys/devices/virtual/bluetooth/hci0/idle_timeout 7000
+#   start btwlancoex
+
+#on property:init.svc.bluetoothd=stopped
+#   stop btwlancoex
+#end
 
 service hci_qcomm_init /system/bin/log -t qcom-bluetooth -p i "hci_qcomm_init service requested"
     user bluetooth
@@ -78,6 +97,10 @@ service rmt_storage /system/bin/rmt_storage /dev/block/mmcblk0p10 /dev/block/mmc
 on property:ro.emmc=1
     start rmt_storage
 
+#Li Fenfen, 20101207, for bcm bt, modify
+#Original
+#service hciattach /system/bin/sh /system/etc/init.qcom.bt.sh
+#New
 service hciattach /system/bin/logwrapper /system/bin/brcm_patchram_plus -d --patchram /system/wifi/BCM4329B1_002.002.023.0735.BYD.38.4MHz.CL1.TESTONLY.hcd /dev/ttyHS0 --baudrate 3000000 --enable_pcm 1 --enable_lpm 1 --enable_hci 1
 #end
     user bluetooth
@@ -87,11 +110,24 @@ service hciattach /system/bin/logwrapper /system/bin/brcm_patchram_plus -d --pat
 
 service port-bridge /system/bin/port-bridge /dev/smd0 /dev/ttyGS0
 
+#original content
+#Qin Mei [Begin , 20101025,duplicate between init.rc and init.qcom.rc,delete]
+#service qmuxd /system/bin/qmuxd
+#end
+
 service netmgrd /system/bin/netmgrd -E
     disabled
 
 on property:ro.use_data_netmgrd=true
     start netmgrd
+
+#Li Fenfen, 20101207, for bcm bt, delete
+#service btwlancoex /system/bin/sh /system/etc/init.qcom.coex.sh
+#   user root
+#    group qcom_oncrpc bluetooth net_bt_admin
+#    disabled
+#    oneshot
+#end
 
 
  service wpa_supplicant /system/bin/logwrapper /system/bin/wpa_supplicant -Dwext -ieth0 -c/data/misc/wifi/wpa_supplicant.conf -dd
@@ -101,8 +137,12 @@ on property:ro.use_data_netmgrd=true
     disabled
     oneshot
 
-
+# Orginal Content
+# service dhcpcd /system/bin/logwrapper dhcpcd -d eth0
+# End
+# Begin Li Fei, 20101116, bcm 4329 wifi, modify
 service dhcpcd /system/bin/dhcpcd -BKL eth0
+# End
     disabled
     oneshot
 
@@ -133,7 +173,9 @@ service qcom-wifi /system/bin/sh /system/etc/init.qcom.wifi.sh
 
 on property:init.svc.bootanim=stopped
     start qcom-post-boot
-
+# Begin Li Fei, 20101116, delete qcom wifi, delete
+    # start qcom-wifi
+# End
 
 service ckpd /system/bin/CKPD-daemon
     onrestart /system/bin/log -t RIL-CKPD -p w "CKPD daemon restarted"

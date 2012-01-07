@@ -7,6 +7,7 @@ TARGET_NO_BOOTLOADER := true
 TARGET_BOARD_PLATFORM := msm7k
 TARGET_CPU_ABI := armeabi-v6l
 TARGET_CPU_ABI2 := armeabi
+TARGET_BOARD_PLATFORM_GPU := qcom-adreno200
 TARGET_BOOTLOADER_BOARD_NAME := a70
 
 BOARD_KERNEL_CMDLINE := mem=212M console=ttyMSM2 androidboot.hardware=qcom
@@ -29,7 +30,7 @@ BOARD_SYSTEMIMAGE_PARTITION_SIZE := 0x09100000
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 0x0be00000
 BOARD_FLASH_BLOCK_SIZE := 131072
 
-BOARD_UMS_LUNFILE := "/sys/devices/platform/msm_hsusb/gadget/lun0"
+BOARD_UMS_LUNFILE := "/sys/devices/platform/msm_sdcc.1/mmc_host"
 
 TARGET_PREBUILT_KERNEL := device/micromax/a70/kernel
 
